@@ -1,0 +1,89 @@
+---
+title: "HES data load, clean"
+output: html_document
+---
+
+
+#### 1. Importing the health data
+This data is from the [CUREd database](https://www.sheffield.ac.uk/scharr/research/centres/cure/projects/cured-how-access-data). This database includes several datasets covering various aspects of urgent and emergency care across Yorkshire and Humber.I have used data from the Accident and Emergency attendances dataset. This is routinely collected patient data from emergency departments, urgent care centres and walk-in centres across the region. The dataset spans from April 2011 to March 2017.
+
+There are standardised variable names across NHS datasets so this code should theoretically be able to be applied to any NHS dataset.
+
+<!--- I found that I could bring in the required columns with read_csv and fread, although I couldn't include the column types in the fread comamnd --->
+```{r }
+wholedata <- read_csv("D:/DEPED/Working data/INT0017_DEPED_ae.csv", 
+                          col_types = cols(sex = col_number(), 
+                                           activage = col_number(), aearrivaldate = col_date(format = "%Y-%m-%d")),col_select = c("activage", "aearrivaldate", "sex", "lsoa11", "aelowacuity", "aedepttype") )
+```
+
+#### 2. Put age into age groups
+These age groups are taken from the [World Health Organisation standardised age group categories](https://seer.cancer.gov/stdpopulations/world.who.html)
+```{r}
+wholedata <- wholedata %>% mutate(agegroup = case_when(activage >= 70  & activage <= 119 ~ 'age8',
+                                                           activage >= 60  & activage <= 69 ~ 'age7',
+                                                           activage >= 50  & activage <= 59 ~ 'age6',
+                                                           activage >= 40  & activage <= 49 ~ 'age5',
+                                                           activage >= 30  & activage <= 39 ~ 'age4',
+                                                           activage >= 20  & activage <= 29 ~ 'age3',
+                                                           activage >= 10  & activage <= 19 ~ 'age2',
+                                                           activage >= 0  & activage <= 9 ~ 'age1'))
+
+```
+
+#### 3. Remove attendances from before 2013
+The data from before 2013 is less reliable so I have removed it from the analysis
+``` {r}
+wholedata <- subset (wholedata, aearrivaldate >"2012-12-31")
+#option to remove non-type 1 attendances: wholedata <- subset (wholedata, aedepttype = "01")
+```
+
+#### 4. Re-code missing sex variables to NA
+I have used [this page](https://www.datadictionary.nhs.uk/data_elements/person_stated_gender_code.html) from the NHS data dictionary as a guide
+I have noted that in the code 1 = male and 2 = female
+
+First I created a new sex variable, then I recoded 0s and 9s to NA (missing)
+``` {r}
+wholedata$sex [wholedata$sex == 0] <- NA
+wholedata$sex [wholedata$sex == 9] <- NA
+```
+
+#### 5. Count how many attendances occur by agegroup, sex and locality.
+These stratifications are the units I will use for the standardisation of rates.
+<!--- I then rearranged the layout of the table, ready for when it is merged with the census data --->
+```{r}
+attendage <- wholedata %>% count (agegroup, sex, lsoa11)
+attendage <- attendage %>% pivot_wider (names_from = c(agegroup, sex), values_from = n)
+attendage <- attendage %>% drop_na(lsoa11)
+attendage[is.na(attendage)]<- 0
+```
+
+
+#### 6. Creating an ED low acuity proportion for each LSOA
+
+```{r}
+#counting number of attendances stratified by lsoa and low acuity score
+lowaclsoa <- wholedata %>% count (aelowacuity, lsoa11)
+
+#pivoting table so it is easier to work with
+lowaclsoa <- lowaclsoa %>% pivot_wider(id_cols= lsoa11, names_from = aelowacuity, values_from = n)
+
+#renaming low acuity column names
+names(lowaclsoa) [names(lowaclsoa) == '0'] <- 'no'
+names(lowaclsoa) [names(lowaclsoa) == '1'] <- 'yes'
+
+# calculating fraction of lowacuity attendances
+lowaclsoa <- lowaclsoa %>% mutate(lowacfract = yes /no)
+
+#finalising lsoa and low acuity fraction
+lowaclsoa <- subset (lowaclsoa, select = c ("lsoa11", "lowacfract"))
+```
+
+
+#### 7. Create proportion missing variable for each LSOA
+something in this bit of code isn't working because it's adding 1 + 0, and getting 2!
+```{r}
+attendage <- attendage %>% rowwise () %>% mutate (totatt = sum (c_across(age1_1:NA_NA), na.rm = TRUE))
+attendage <- attendage %>% mutate (misagesex = sum (c(NA_1, NA_2, age1_NA, age2_NA, age3_NA, age4_NA, age5_NA, age6_NA, age7_NA, age8_NA, NA_NA, na.rm = TRUE)), misage = sum(c(NA_1,NA_2,NA_NA, na.rm = TRUE)), missex = sum(c(age1_NA, age2_NA, age3_NA, age4_NA, age5_NA, age6_NA, age7_NA, age8_NA, NA_NA, na.rm = TRUE)))
+attendage <- attendage %>% mutate(misfract = misagesex /totatt)
+```
+
