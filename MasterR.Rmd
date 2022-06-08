@@ -1,0 +1,26 @@
+---
+title: "Bringing together code"
+author: "Joanna Sutton-Klein"
+output: html_document
+---
+<!--- rmarkdown::render("masterR.Rmd") --->
+
+This is the code that I am using to explore spatial variability in emergency department attendances.
+
+<!--- Set working directory --->
+```{r, echo=FALSE, cache=TRUE }
+setwd("D:/DEPED/Github/edattendances/")
+```
+
+<!--- Setting up R studio for the analysis --->
+```{r, child = "Setting_up_Rstudio.Rmd", echo=FALSE, cache=TRUE}
+
+```
+
+
+The first stage is importing and cleaning the health data. In this section I also calculate the proportion of low acuity attendances for each locality
+
+```{r, child = "HES_data_importclean.Rmd", echo=FALSE, cache=TRUE}
+
+```
+
