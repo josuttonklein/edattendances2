@@ -20,6 +20,6 @@ library (caret)
 
 ## Setting working directory
 ```{r }
-setwd("D:/DEPED/Github/edattendances/")
+setwd("D:/DEPED/Github/edattendances2/")
 ```
 

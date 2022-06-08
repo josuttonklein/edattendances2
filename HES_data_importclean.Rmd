@@ -83,7 +83,7 @@ lowaclsoa <- subset (lowaclsoa, select = c ("lsoa11", "lowacfract"))
 something in this bit of code isn't working because it's adding 1 + 0, and getting 2!
 ```{r}
 attendage <- attendage %>% rowwise () %>% mutate (totatt = sum (c_across(age1_1:NA_NA), na.rm = TRUE))
-attendage <- attendage %>% mutate (misagesex = sum (c(NA_1, NA_2, age1_NA, age2_NA, age3_NA, age4_NA, age5_NA, age6_NA, age7_NA, age8_NA, NA_NA, na.rm = TRUE)), misage = sum(c(NA_1,NA_2,NA_NA, na.rm = TRUE)), missex = sum(c(age1_NA, age2_NA, age3_NA, age4_NA, age5_NA, age6_NA, age7_NA, age8_NA, NA_NA, na.rm = TRUE)))
+attendage <- attendage %>% rowwise () %>% mutate (misagesex = sum (c(NA_1, NA_2, age1_NA, age2_NA, age3_NA, age4_NA, age5_NA, age6_NA, age7_NA, age8_NA, NA_NA)), misage = sum(c(NA_1,NA_2,NA_NA)), missex = sum(c(age1_NA, age2_NA, age3_NA, age4_NA, age5_NA, age6_NA, age7_NA, age8_NA, NA_NA)))
 attendage <- attendage %>% mutate(misfract = misagesex /totatt)
 ```
 

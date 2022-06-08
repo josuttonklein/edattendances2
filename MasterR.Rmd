@@ -9,7 +9,7 @@ This is the code that I am using to explore spatial variability in emergency dep
 
 <!--- Set working directory --->
 ```{r, echo=FALSE, cache=TRUE }
-setwd("D:/DEPED/Github/edattendances/")
+setwd("D:/DEPED/Github/edattendances2/")
 ```
 
 <!--- Setting up R studio for the analysis --->
