@@ -1,0 +1,25 @@
+---
+#title: "Setting_up_Rstudio"
+#output: html_document
+---
+# Setting up R
+## Opening packages
+```{r }
+library (tibble)
+library (magrittr)
+library (dplyr)
+library (tidyverse)
+library (data.table)
+library (writexl)
+library (ggplot2)
+library (ggpubr)
+library (readxl)
+library (pastecs)
+library (caret)
+```
+
+## Setting working directory
+```{r }
+setwd("D:/DEPED/Github/edattendances/")
+```
+
