@@ -16,6 +16,10 @@ library (ggpubr)
 library (readxl)
 library (pastecs)
 library (caret)
+library (leaflet)
+library (rgdal)
+library (sf)
+library (RColorBrewer)
 ```
 
 ## Setting working directory

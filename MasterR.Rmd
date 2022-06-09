@@ -30,3 +30,14 @@ Next I downloaded the census data and calculate the total population for each LS
 
 ```
 
+Merge the health data and census data
+
+```{r, child = "Merging_data.Rmd", echo=FALSE, cache=TRUE}
+
+```
+
+Calculate crude rates of attendance
+
+```{r, child = "Calculating_rates.Rmd", echo=FALSE, cache=TRUE}
+
+```

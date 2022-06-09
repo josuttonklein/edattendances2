@@ -1,0 +1,8 @@
+---
+title: "Merging_data"
+output: html_document
+---
+### 1. Merge the ED attendance numbers and the lsoa populations ###
+``` {r}
+popattendnostrat <- merge (censuswhole2015, attend, by=c("lsoa11"))
+```

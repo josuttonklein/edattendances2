@@ -1,0 +1,73 @@
+---
+title: "downloading lsoa boundary data"
+output: html_document
+---
+``` {r}
+
+nostarate <- nostarate %>% rename(LSOA11CD = lsoa11)
+```
+  
+  code from [here](https://nhsrcommunity.com/blog/using-sf-to-calculate-catchment-areas/)
+
+``` {r}
+lsoa_boundaries <- read_sf(
+  "https://opendata.arcgis.com/datasets/e9d10c36ebed4ff3865c4389c2c98827_0.geojson"
+) %>%
+  # there are other fields in the lsoa data, but we only need the LSOA11CD field
+  select(LSOA11CD) %>%
+  inner_join(nostarate, by = "LSOA11CD") %>%
+  # this helps when combining different sf objects and get's rid of some messages
+  st_set_agr(c(LSOA11CD = "identity", rate = "aggregate"))
+```
+
+``` {r}
+ggplot() +
+  # first plot the lsoa boundaries and colour by the population
+  geom_sf(data = lsoa_boundaries, aes(fill = rate), colour = NA) +
+    scale_fill_distiller(type = "div", palette = "Spectral",
+                       # tidy up labels in the legend, display as thousands
+                       ) +
+  theme_void() +
+  theme(legend.position = c(0, 0.98),
+        legend.justification = c(0, 1)) +
+  labs(fill = "Annual ED attendance rate per thousand population")
+```
+
+``` {r}
+m <- leaflet () %>%
+  addProviderTiles(providers$CartoDB.Positron) %>%
+  addPolygons( data = lsoa_boundaries,
+        stroke = TRUE,
+        weight = 0.5,
+        color = "#37B1ED",
+        opacity = 1,
+        fillColor = "#37B1ED",
+        fillOpacity = 0.5)
+
+m
+```
+
+
+
+
+``` {r}
+LSOABins <- c(0, 50, 100, 200, 250, 350, 800)
+LSOAPal <- colorBin ("YlGnBu", domain = lsoa_boundaries$rate, bins = LSOABins)
+```
+
+
+
+``` {r}
+m <-leaflet() %>%
+addProviderTiles(providers$CartoDB.Positron) %>%
+  addPolygons( data = lsoa_boundaries,
+stroke = TRUE,
+weight = 0.2,
+color="#ABABAB",
+smoothFactor = 0.3,
+opacity = 0.9,
+fillOpacity= 0.8,
+fillColor = ~LSOAPal (rate))
+
+m
+```

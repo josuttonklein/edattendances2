@@ -52,7 +52,6 @@ These stratifications are the units I will use for the standardisation of rates.
 <!--- I then rearranged the layout of the table, ready for when it is merged with the census data --->
 ```{r}
 attend <- wholedata %>% count (lsoa11)
-attendage[is.na(attendage)]<- 0
 
 ```
 

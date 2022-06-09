@@ -1,0 +1,11 @@
+---
+title: "Calculating_rates"
+output: html_document
+---
+### Creating a crude rate of attendance###
+This is not adjusted for age or sex
+
+<!--- 4.249 is the number of years that the data covered --->
+``` {r}
+nostarate <- popattendnostrat %>% mutate (rate = n/totpop*1000/4.249)
+```
