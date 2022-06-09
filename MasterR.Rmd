@@ -24,3 +24,9 @@ The first stage is importing and cleaning the health data. In this section I als
 
 ```
 
+Next I downloaded the census data and calculate the total population for each LSOA
+
+```{r, child = "census_data_importclean.Rmd", echo=FALSE, cache=TRUE}
+
+```
+
