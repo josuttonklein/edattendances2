@@ -1,4 +1,10 @@
 ---
+title: "HES data backup"
+output: html_document
+---
+
+
+---
 title: "HES data load, clean"
 output: html_document
 ---
@@ -51,9 +57,15 @@ wholedata$sex [wholedata$sex == 9] <- NA
 These stratifications are the units I will use for the standardisation of rates.
 <!--- I then rearranged the layout of the table, ready for when it is merged with the census data --->
 ```{r}
-attend <- wholedata %>% count (lsoa11)
+attendage <- wholedata %>% count (agegroup, sex, lsoa11)
+attendage <- attendage %>% pivot_wider (names_from = c(agegroup, sex), values_from = n)
+attendage <- attendage %>% drop_na(lsoa11)
 attendage[is.na(attendage)]<- 0
 
+attendage <- wholedata %>% group_by(agegroup, sex, lsoa11) %>% count()
+
+attendage <- wholedata %>% count (agegroup, sex, lsoa11) %>% pivot_wider (names_from = c(agegroup, sex), values_from = n) %>% drop_na(lsoa11)
+attendage[is.na(attendage)]<- 0
 ```
 
 
@@ -77,4 +89,11 @@ lowaclsoa <- lowaclsoa %>% mutate(lowacfract = yes /no)
 lowaclsoa <- subset (lowaclsoa, select = c ("lsoa11", "lowacfract"))
 ```
 
+
+#### 7. Create proportion missing variable for each LSOA
+```{r}
+attendage <- attendage %>% rowwise () %>% mutate (totatt = sum (c_across(age1_1:NA_NA), na.rm = TRUE))
+attendage <- attendage %>% rowwise () %>% mutate (misagesex = sum (c(NA_1, NA_2, age1_NA, age2_NA, age3_NA, age4_NA, age5_NA, age6_NA, age7_NA, age8_NA, NA_NA)), misage = sum(c(NA_1,NA_2,NA_NA)), missex = sum(c(age1_NA, age2_NA, age3_NA, age4_NA, age5_NA, age6_NA, age7_NA, age8_NA, NA_NA)))
+attendage <- attendage %>% mutate(misfract = misagesex /totatt)
+```
 
