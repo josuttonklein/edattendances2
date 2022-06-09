@@ -3,26 +3,19 @@ title: "census_data_importclean"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+
+### 1. Working with YH population data
+Download Yorkshire & Humber LSOA population data from the [ONS](https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/censusoutputareaestimatesintheyorkshireandthehumberregionofengland ) I chose mid-2015 for now
+
+### 2. Add up the total population for each LSOA
+The ONS data is categorised on LSOA11 and OA11 which means that there are several rows for each LSOA which need to be added together.
+``` {r}
+censuswhole2015 <- read_excel("mid2015census.xlsx", 
+    sheet = "Mid-2015 Persons", skip = 4)
+censuswhole2015 <- censuswhole2015 %>% rename(lsoa11 = LSOA11CD) %>% rename(totpop = "All Ages") 
+censuswhole2015 = subset (censuswhole2015, select = c( "lsoa11", "totpop"))
+censuswhole2015 <- censuswhole2015 %>% group_by (lsoa11) %>% summarise_all(funs(sum))
+
 ```
 
-## R Markdown
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-summary(cars)
-```
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
