@@ -2,3 +2,4 @@
 *.RData
 *.xls*
 masterR_cache/html*
+*.geojson*
