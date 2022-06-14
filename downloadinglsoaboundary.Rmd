@@ -19,6 +19,22 @@ lsoa_boundaries <- read_sf(
   # this helps when combining different sf objects and get's rid of some messages
   st_set_agr(c(LSOA11CD = "identity", rate = "aggregate"))
 ```
+https://hub.arcgis.com/datasets/ons::lower-layer-super-output-areas-december-2011-boundaries-full-clipped-bfc-ew-v3/explore?location=52.354095%2C0.123811%2C9.93
+
+
+``` {r}
+lsoa_boundaries <- read_sf(
+  "D:/DEPED/Github/edattendances2/Lower_Layer_Super_Output_Areas__December_2011__Boundaries_Full_Clipped__BFC__EW_V3.geojson"
+) %>%
+  # there are other fields in the lsoa data, but we only need the LSOA11CD field
+  select(LSOA11CD) %>%
+  inner_join(nostarate, by = "LSOA11CD") %>%
+  # this helps when combining different sf objects and get's rid of some messages
+  st_set_agr(c(LSOA11CD = "identity", rate = "aggregate"))
+```
+
+
+https://opendatacommunities.org/resource.json?uri=http%3A%2F%2Fopendatacommunities.org%2Fid%2Fgeography%2Fadministration%2Frgn%2FE12000003
 
 ``` {r}
 ggplot() +
@@ -68,6 +84,33 @@ smoothFactor = 0.3,
 opacity = 0.9,
 fillOpacity= 0.8,
 fillColor = ~LSOAPal (rate))
+
+m
+```
+
+``` {r}
+LSOAPal <- colorNumeric(
+  palette = "YlGnBu",
+  domain = lsoa_boundaries$rate)
+
+```
+
+``` {r}
+m <-leaflet() %>%
+addProviderTiles(providers$CartoDB.Positron) %>%
+  addPolygons( data = lsoa_boundaries,
+stroke = TRUE,
+weight = 0.2,
+color="#ABABAB",
+smoothFactor = 0.3,
+opacity = 0.9,
+fillOpacity= 0.8,
+fillColor = ~LSOAPal (rate)) %>% 
+addLegend("bottomright",opacity = 1,
+          colors =c("#ffffcc","#c7e9b4","#7fcdbb","#41b6c4","#1d91c0","#225ea8","#0c2c84"),
+          title = "Annual ED attendance rates/1000 population",
+          labels= c("On the floor","Pretty low","Slightly low","About average","Slightly high", "Pretty high", "Through the roof")
+          )
 
 m
 ```
