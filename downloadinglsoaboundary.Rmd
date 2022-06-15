@@ -6,7 +6,7 @@ output: html_document
 
 nostarate <- nostarate %>% rename(LSOA11CD = lsoa11)
 ```
-  
+
   code from [here](https://nhsrcommunity.com/blog/using-sf-to-calculate-catchment-areas/)
 
 ``` {r}
@@ -105,7 +105,7 @@ color="#ABABAB",
 smoothFactor = 0.3,
 opacity = 0.9,
 fillOpacity= 0.8,
-fillColor = ~LSOAPal (rate)) %>% 
+fillColor = ~LSOAPal(rate)) %>%
 addLegend("bottomright",opacity = 1,
           colors =c("#ffffcc","#c7e9b4","#7fcdbb","#41b6c4","#1d91c0","#225ea8","#0c2c84"),
           title = "Annual ED attendance rates/1000 population",
@@ -113,4 +113,71 @@ addLegend("bottomright",opacity = 1,
           )
 
 m
+```
+
+This is great, we now need to make a couple of functions to do the
+following...
+
+1) Subset the data by any grouping we choose, gender, age boundary etc.
+2) A function to plot this.
+
+``` {r, label='subsetting_function'}
+subset_data <- function(data, min_age, max_age, gender = NULL, ...) {
+  data <- data |> dplyr::filter(age > min_age &
+                                age < max_age)
+
+  if gender != NULL {
+    data <- data |> dplyr::filter(gender = gender)
+
+  }
+
+  return data
+}
+```
+
+``` {r, label='leaflet_function'}
+leaflet_plot <- function(data, weight=0.5, opacity=1, fillOpacity=0.5,
+                         color="#37B1ED",
+                         fillColor= colorNumeric(palette = "YlGnBu",
+                                                 domain = lsoa_boundaries$rate),
+                         smoothFactor=0.3,
+                         LSOABins=c(0, 50, 100, 200, 250, 350, 800)
+                         LSOAPal=colorBin("YlGnBu",
+                                          domain=lsoa_boundaries$rate,
+                                          bins = LSOABins),
+                         legendPosition="bottomright",
+                         legendOpacity=1,
+                         legendColors=c("#ffffcc",
+                                        "#c7e9b4",
+                                        "#7fcdbb",
+                                        "#41b6c4",
+                                        "#1d91c0",
+                                        "#225ea8",
+                                        "#0c2c84"),
+                         legendTitle="Annual ED attendance rates/1000 population",
+                         legendLabels=c("On the floor",
+                                        "Pretty low",
+                                        "Slightly low",
+                                        "About average",
+                                        "Slightly high",
+                                        "Pretty high",
+                                        "Through the roof")
+                         ) {
+m <- leaflet() |>
+     addProviderTiles(providers$CartoDB.Positron) |>
+     addPolygons(data = lsoa_boundaries,
+                 stroke = TRUE,
+                 weight = weight,
+                 color = color,
+                 smoothFactor = smoothFactor,
+                 opacity = opacity,
+                 fillColor = fillColor,
+                 fillOpacity = fillOpacity) |>
+
+                 addLegend(legendPosition,
+                           legendOpacity,
+                           colors=legendColors,
+                           title=legendTitle,
+                           labels=legendLabels)
+}
 ```
