@@ -1,0 +1,28 @@
+---
+title: "Generating longlat for type1ed"
+output: html_document
+---
+<!--- download data from here: https://www.whatdotheyknow.com/request/addresses_of_major_type_1_ae_dep_2 --->
+
+``` {r}
+EDpostcodes <- read_excel("Copy of NIC 98262 D1L6S AE service provider with trust names.xlsx")
+EDpostcodes <- subset (EDpostcodes, select = c ("Postcode"))
+```
+
+
+``` {r}
+headlist <- head(EDpostcodes, 90)
+headlist <- list(headlist$Postcode)
+
+taillist <- tail(EDpostcodes, 83)
+taillist <- list(taillist$Postcode)
+```
+
+postcodes2 <- paste(EDpostcodes, ", UK", sep="")
+
+postcodelist <- list(EDpostcodes$Postcode)
+bulk_postcode_lookup(postcodes = postcodelist)
+
+headlist <- head(EDpostcodes, 90)
+
+taillist <- tail(EDpostcodes, 83)

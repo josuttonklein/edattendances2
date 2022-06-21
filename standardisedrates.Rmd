@@ -1,0 +1,91 @@
+---
+title: "standardisedrates"
+output: html_document
+---
+
+### 1. Joining together cured + population data to calculate rates
+merge the ED attendance numbers and the lsoa populations
+```{r}
+popattend <- merge (attendage, yhagegroup, by=c("lsoa11"))
+
+```
+
+```{r}
+
+#calculate the rates for each age group#
+poprate <- popattend %>% mutate (rate1 = age1_1/agegr1_1*1000) %>%
+  mutate (rate2 = age2_1/agegr2_1*1000)%>%
+  mutate (rate3 = age3_1/agegr3_1*1000)%>%
+  mutate (rate4 = age4_1/agegr4_1*1000)%>%
+  mutate (rate5 = age5_1/agegr5_1*1000)%>%
+  mutate (rate6 = age6_1/agegr6_1*1000)%>%
+  mutate (rate7 = age7_1/agegr7_1*1000)%>%
+  mutate (rate8 = age8_1/agegr8_1*1000)%>%
+  mutate (frate1 = age1_2/agegr1_2*1000)%>%
+  mutate (frate2 = age2_2/agegr2_2*1000)%>%
+  mutate (frate3 = age3_2/agegr3_2*1000)%>%
+  mutate (frate4 = age4_2/agegr4_2*1000)%>%
+  mutate (frate5 = age5_2/agegr5_2*1000)%>%
+  mutate (frate6 = age6_2/agegr6_2*1000)%>%
+  mutate (frate7 = age7_2/agegr7_2*1000)%>%
+  mutate (frate8 = age8_2/agegr8_2*1000)
+
+  
+poprate = subset (poprate, select = c( "lsoa11", "rate1",  "rate2",  "rate3" , "rate4",  "rate5", "rate6", "rate7", "rate8", "frate1",  "frate2",  "frate3" , "frate4",  "frate5", "frate6", "frate7", "frate8", "highmiss"))
+
+```
+
+### Calculating the weights
+```{r}
+
+#calculate totals for each column <-- use this to calculate weights (remember to do YH pop rather than attendances!)
+yhweights = subset (popattend, select = c( "agegr1_1", "agegr2_1", "agegr3_1", "agegr4_1", "agegr5_1", "agegr6_1", "agegr7_1", "agegr8_1", "agegr1_2", "agegr2_2", "agegr3_2", "agegr4_2", "agegr5_2", "agegr6_2", "agegr7_2", "agegr8_2"))
+
+yhweights <- yhweights %>% summarise_all(sum)
+
+yhweightstotal <- rowSums(yhweights)
+
+yhweights = yhweights/yhweightstotal
+
+```
+
+
+
+### calculating the weighted rates and adding them together
+``` {r}
+
+weightedrates <- poprate %>% mutate(weight1 = rate1*yhweights$agegr1_1) %>%
+mutate(weight1 = rate1*yhweights$agegr1_1) %>%
+  mutate(weight2 = rate2*yhweights$agegr2_1) %>%
+  mutate(weight3 = rate3*yhweights$agegr3_1) %>%
+  mutate(weight4 = rate4*yhweights$agegr4_1) %>%
+  mutate(weight5 = rate5*yhweights$agegr5_1) %>%
+  mutate(weight6 = rate6*yhweights$agegr6_1) %>%
+  mutate(weight7 = rate7*yhweights$agegr7_1) %>%
+  mutate(weight8 = rate8*yhweights$agegr8_1) %>%
+  mutate(weight1f = frate1*yhweights$agegr1_1) %>%
+  mutate(weight2f = frate2*yhweights$agegr2_2) %>%
+  mutate(weight3f = frate3*yhweights$agegr3_2) %>%
+  mutate(weight4f = frate4*yhweights$agegr4_2) %>%
+  mutate(weight5f = frate5*yhweights$agegr5_2) %>%
+  mutate(weight6f = frate6*yhweights$agegr6_2) %>%
+  mutate(weight7f = frate7*yhweights$agegr7_2) %>%
+  mutate(weight8f = frate8*yhweights$agegr8_2)
+
+weightedrates = subset (weightedrates, select = c( "lsoa11", "weight1",  "weight2",  "weight3",  "weight4",  "weight5",  "weight6",  "weight7",  "weight8",  "weight1f", "weight2f", "weight3f", "weight4f", "weight5f", "weight6f", "weight7f", "weight8f", "highmiss"))
+
+weightedrates <- weightedrates %>% mutate (werate = weight1 + weight2+ weight3+ weight4+ weight5+ weight6+ weight7+ weight8+ weight1f + weight2f+ weight3f+ weight4f+ weight5f+ weight6f+ weight7f+ weight8f)
+
+weightedrates = subset(weightedrates, select =c ("lsoa11", "werate", "highmiss"))
+  
+```
+
+### calculate non-marginal totals
+
+```{r}
+marginallsoa11 <- read_csv("D:/DEPED/Working data/marginallsoa11.csv")
+anasamp <- anti_join(weightedrates, marginallsoa11, by=c("lsoa11"))
+
+anasamp <- anasamp [!(anasamp$highmiss==1),]
+anasamp <- subset(anasamp, select = c ("lsoa11", "werate"))
+```

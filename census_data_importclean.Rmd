@@ -14,8 +14,54 @@ censuswhole2015 <- read_excel("mid2015census.xlsx",
     sheet = "Mid-2015 Persons", skip = 4)
 censuswhole2015 <- censuswhole2015 %>% rename(lsoa11 = LSOA11CD) %>% rename(totpop = "All Ages") 
 censuswhole2015 = subset (censuswhole2015, select = c( "lsoa11", "totpop"))
-censuswhole2015 <- censuswhole2015 %>% group_by (lsoa11) %>% summarise_all(funs(sum))
+censuswhole2015 <- censuswhole2015 %>% group_by (lsoa11) 
 
 ```
 
+### 3. Count stratas in census data
+#Download Yorkshire & Humber LSOA population data - I chose mid-2015
+### https://www.ons.gov.uk/peoplepopulationandcommunity/populationandmigration/populationestimates/datasets/censusoutputareaestimatesintheyorkshireandthehumberregionofengland #
+#in excel, for each sex, add in column 1=male, 2 = female, and change LSOA11CD heading to lsoa11#
+#import each sheet to  R separately#
 
+``` {r}
+yhlsoamale <- read_excel("D:/DEPED/Working data/YH lsoa population.xls", sheet = "Mid-2015 Males")
+
+yhlsoafemale <- read_excel("D:/DEPED/Working data/YH lsoa population.xls", 
+                           sheet = "Mid-2015 Females")
+
+#merge the male and female gen pops, then clean environment
+yhlsoagenpop <- rbind(yhlsoamale, yhlsoafemale)
+
+# count the number of people in age group for the yorkshire and humber general pop
+
+
+## experimenting with 10 year age brackets
+yhagegroup <- yhlsoagenpop %>%
+  mutate(agegr1 = rowSums(.[4:13], na.rm=TRUE))  %>%
+  mutate(agegr2 = rowSums(.[14:23], na.rm=TRUE)) %>%
+  mutate(agegr3 = rowSums(.[24:33], na.rm=TRUE)) %>%
+  mutate(agegr4 = rowSums(.[34:43], na.rm=TRUE)) %>%
+  mutate(agegr5 = rowSums(.[44:54], na.rm=TRUE)) %>%
+  mutate(agegr6 = rowSums(.[54:64], na.rm=TRUE)) %>%
+  mutate(agegr7 = rowSums(.[64:74], na.rm=TRUE)) %>%
+  mutate(agegr8 = rowSums(.[74:94], na.rm=TRUE)) %>%
+  mutate(totpop = rowSums(.[4:94], na.rm=TRUE))
+yhagegroup = subset (yhagegroup, select = c( "sex", "lsoa11","agegr1", "agegr2", "agegr3", "agegr4", "agegr5", "agegr6", "agegr7", "agegr8", "totpop"))
+yhagegroup <- yhagegroup %>% group_by (sex, lsoa11) %>% summarise_all(funs(sum))
+
+
+#add together multiple lsoa rows
+yhagegroup <- yhagegroup %>% group_by (sex, lsoa11)
+
+#clean the environment#
+rm (yhlsoagenpop)
+
+
+
+````
+
+```{r}
+yhagegroup <- yhagegroup %>% pivot_wider (names_from = c(sex), values_from = c (agegr1, agegr2, agegr3, agegr4, agegr5, agegr6, agegr7, agegr8, totpop ))
+                                            
+```

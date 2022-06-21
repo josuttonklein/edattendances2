@@ -3,7 +3,7 @@ title: "Bringing together code"
 author: "Joanna Sutton-Klein"
 output: html_document
 ---
-<!--- rmarkdown::render("masterR.Rmd") --->
+<!--- rmarkdown::render("MasterR.Rmd") --->
 
 This is the code that I am using to explore spatial variability in emergency department attendances.
 
@@ -41,3 +41,16 @@ Calculate crude rates of attendance
 ```{r, child = "Calculating_rates.Rmd", echo=FALSE, cache=TRUE}
 
 ```
+
+Calculate standardised rates of attendance
+
+```{r, child = "standardisedrates.Rmd", echo=FALSE, cache=TRUE}
+
+```
+
+Maps of weighted rates
+
+```{r, child = "mapweightedrate.Rmd", echo=FALSE, cache=TRUE}
+
+```
+
