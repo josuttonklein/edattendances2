@@ -49,19 +49,6 @@ ggplot() +
   labs(fill = "Annual ED attendance rate per thousand population")
 ```
 
-``` {r}
-m <- leaflet () %>%
-  addProviderTiles(providers$CartoDB.Positron) %>%
-  addPolygons( data = lsoa_boundaries,
-        stroke = TRUE,
-        weight = 0.5,
-        color = "#37B1ED",
-        opacity = 1,
-        fillColor = "#37B1ED",
-        fillOpacity = 0.5)
-
-m
-```
 
 
 
